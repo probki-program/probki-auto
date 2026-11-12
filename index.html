@@ -141,18 +141,13 @@ dialog{max-height:90dvh;width:min(540px,calc(100% - 30px));border:1px solid #b8c
 <dialog id="requestDialog" aria-labelledby="requestTitle">
   <div class="dialog-top"><h2 id="requestTitle">Подключить свой город</h2><button type="button" class="close" id="closeDialog" aria-label="Закрыть">×</button></div>
   <p class="dialog-note">Расскажите о станции. Заявка придёт на <a href="mailto:probkiauto@gmail.com" style="color:var(--blue)">probkiauto@gmail.com</a>, и мы свяжемся с вами.</p>
-  <form id="requestForm" action="https://formsubmit.co/probkiauto@gmail.com" method="POST" accept-charset="UTF-8">
-    <input type="hidden" name="_subject" value="Пробки — новая заявка на подключение">
-    <input type="hidden" name="_template" value="table">
-    <input type="hidden" id="formNext" name="_next" value="" disabled>
-    <input type="hidden" id="formSource" name="Страница" value="" disabled>
-    <div style="display:none" aria-hidden="true"><label>Оставьте пустым<input type="text" name="_honey" tabindex="-1" autocomplete="off"></label></div>
+  <form id="requestForm" action="https://functions.yandexcloud.net/d4ed9qehr8sufsdr5mof" method="POST" accept-charset="UTF-8">
     <label class="field">Город<input name="city" placeholder="Например, Киров" required maxlength="80" autocomplete="address-level2"></label>
     <label class="field">Радиостанция<input name="station" placeholder="Название станции" required maxlength="120" autocomplete="organization"></label>
     <label class="field">Ваша электронная почта<input type="email" name="email" placeholder="name@station.ru" required maxlength="254" autocomplete="email"></label>
     <label class="field">Телефон или Telegram, если удобно<input name="contact" placeholder="Необязательно" maxlength="120" autocomplete="tel"></label>
     <label class="field">Что важно учесть<textarea name="message" rows="2" maxlength="800" placeholder="Расписание, голос, эфирная программа…"></textarea></label>
-    <p class="dialog-note">Доставка заявки — через FormSubmit. При отправке сервис может попросить пройти проверку от спама.</p>
+    <div id="leadCaptcha" style="min-height:100px;max-width:100%"></div>
     <div class="dialog-actions"><button type="submit" class="button blue" id="sendRequest">Отправить заявку</button></div>
     <p class="dialog-note" id="formStatus" role="status" aria-live="polite"></p>
   </form>
@@ -173,34 +168,50 @@ document.getElementById('closeDialog').addEventListener('click',()=>dialog.close
 dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
 const requestForm=document.getElementById('requestForm');
 const sendButton=document.getElementById('sendRequest');
-let sending=false;
-requestForm.addEventListener('submit',event=>{
+const formStatus=document.getElementById('formStatus');
+let sending=false, captchaWidget, captchaToken='';
+window.initLeadCaptcha=()=>{
+  captchaWidget=window.smartCaptcha.render('leadCaptcha',{
+    sitekey:'ysc1_txLiXfe7zTKOSEuRbLGiNDmBONUMC49IuPjGkWYW28ab125f',
+    hl:'ru', callback:token=>{captchaToken=token;}
+  });
+  window.smartCaptcha.subscribe(captchaWidget,'token-expired',()=>{captchaToken='';});
+};
+if(['https:','http:'].includes(location.protocol)){
+  const script=document.createElement('script');
+  script.src='https://smartcaptcha.cloud.yandex.ru/captcha.js?render=onload&onload=initLeadCaptcha';
+  script.async=true;
+  script.onerror=()=>{formStatus.textContent='Защита от спама не загрузилась. Обновите страницу или напишите на probkiauto@gmail.com.';};
+  document.head.append(script);
+}
+requestForm.addEventListener('submit',async event=>{
+  event.preventDefault();
+  if(sending)return;
   if(!['https:','http:'].includes(location.protocol)){
-    event.preventDefault();
-    document.getElementById('formStatus').textContent='Отправка из локального файла недоступна. После публикации на GitHub Pages форма заработает. Пока можно написать напрямую на probkiauto@gmail.com.';
-    return;
+    formStatus.textContent='Откройте опубликованный сайт для отправки или напишите на probkiauto@gmail.com.';return;
   }
-  if(sending){event.preventDefault();return;}
-  const data=new FormData(requestForm);
-  const subject=`Пробки — ${String(data.get('city')).trim()}, ${String(data.get('station')).trim()}`;
-  requestForm.querySelector('[name="_subject"]').value=subject.replace(/[\r\n]/g,' ').slice(0,200);
-  const next=document.getElementById('formNext');
-  next.value=new URL('thanks.html',location.href).href;
-  next.disabled=false;
-  const source=document.getElementById('formSource');
-  source.value=location.origin+location.pathname;
-  source.disabled=false;
-  sending=true;
-  sendButton.disabled=true;
-  sendButton.textContent='Отправляем…';
-  document.getElementById('formStatus').textContent='Открываем защищённую отправку FormSubmit.';
-  // Обычный POST: антиспам и подтверждение принимает сервис, затем возвращает на thanks.html.
-});
-window.addEventListener('pageshow',()=>{
-  sending=false;
-  sendButton.disabled=false;
-  sendButton.textContent='Отправить заявку';
-  document.getElementById('formStatus').textContent='';
+  if(!captchaToken){formStatus.textContent='Пройдите проверку от спама перед отправкой.';return;}
+  const data=Object.fromEntries(new FormData(requestForm));
+  data.captcha_token=captchaToken;
+  sending=true;sendButton.disabled=true;sendButton.textContent='Отправляем…';
+  formStatus.textContent='Сохраняем заявку…';
+  try{
+    const result=await fetch(requestForm.action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),signal:AbortSignal.timeout(70000)});
+    const reply=await result.json();
+    if(!result.ok||!reply.ok||!reply.saved)throw new Error(reply.error||'Не удалось отправить заявку. Попробуйте позже.');
+    requestForm.reset();
+    if(reply.email_sent){
+      location.assign(new URL('thanks.html',location.href));return;
+    }
+    formStatus.textContent='Заявка сохранена, но уведомление на почту пока не доставлено. Повторно отправлять не нужно. Для срочной связи: probkiauto@gmail.com.';
+  }catch(error){
+    formStatus.textContent=error.name==='TimeoutError'||error instanceof TypeError
+      ?'Не удалось получить подтверждение сервера. Заявка могла сохраниться. Для уточнения напишите на probkiauto@gmail.com.'
+      :error.message;
+  }finally{
+    sending=false;sendButton.disabled=false;sendButton.textContent='Отправить заявку';captchaToken='';
+    if(window.smartCaptcha&&captchaWidget!==undefined)window.smartCaptcha.reset(captchaWidget);
+  }
 });
 
 </script>
