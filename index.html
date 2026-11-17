@@ -170,7 +170,7 @@ function updatePlayer(){
 play.addEventListener('click',async()=>{
   if(audio.paused){
     try{await audio.play();document.getElementById('audioStatus').textContent='';}
-    catch(e){document.getElementById('audioStatus').textContent='Не удалось включить звук. Обновите страницу или попробуйте другой браузер.';}
+    catch(e){if(e.name!=='AbortError')document.getElementById('audioStatus').textContent='Не удалось включить звук. Обновите страницу или попробуйте другой браузер.';}
   }else audio.pause();
 });
 ['play','pause','ended','timeupdate','durationchange'].forEach(event=>audio.addEventListener(event,updatePlayer));
