@@ -1,6 +1,10 @@
 # Сайт «Пробки»
 
-В корень репозитория публикуются index.html, thanks.html, privacy.html, FONT-LICENSE.txt, README.md , .nojekyll и assets/demo-<hash>.mp3. GitHub Pages: main, /(root).
+Основной адрес с 18.11.2026: https://probki-program.netlify.app/.
+
+Netlify связан с репозиторием probki-program/probki-auto: production branch — main, publish directory — корень репозитория (.), build command — пустой. На GitHub хранятся готовые файлы, Netlify публикует обновления автоматически. Используется бесплатный тариф Free; в нём может отображаться значок Powered by Netlify.
+
+В корень репозитория публикуются index.html, thanks.html, privacy.html, FONT-LICENSE.txt, README.md, .nojekyll и assets/demo-<hash>.mp3. Прежняя публикация GitHub Pages (main, /(root)) пока сохранена.
 
 С 14.11.2026 форма заменена блоком прямой связи через probkiauto@gmail.com. Кнопки «Обсудить подключение» открывают контакты. Ссылка mailto открывает почтовое приложение посетителя; сайт не отправляет заявку и не подтверждает доставку письма.
 
