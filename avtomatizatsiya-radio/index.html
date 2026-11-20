@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2f5f8">
+  <meta name="description" content="Как автоматизировать дорожные сводки в радиоэфире: маршруты 2ГИС, готовый MP3 для «Тракта», резерв при сбое и пример радиостанции из Ижевска.">
+  <link rel="canonical" href="https://probki-program.com/avtomatizatsiya-radio/">
+  <title>Автоматизация радиоэфира: дорожные сводки и «Тракт» — Пробки</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f2f5f8;
+      --ink: #182c40;
+      --muted: #4e6275;
+      --blue: #174fe6;
+      --line: #d5dee7;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 1rem/1.7 system-ui, sans-serif; }
+    a { color: var(--blue); text-underline-offset: .22em; }
+    a:focus-visible { outline: 3px solid var(--blue); outline-offset: 5px; }
+    .wrap { width: min(52rem, calc(100% - 2.5rem)); margin-inline: auto; }
+    .skip { position: absolute; inset-inline-start: 1.25rem; top: -8rem; background: white; padding: .75rem; }
+    .skip:focus { top: .75rem; }
+    header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1.5rem; padding-block: 1.5rem; border-bottom: 1px solid var(--line); }
+    .logo { color: var(--ink); font-size: 1.75rem; font-weight: 750; letter-spacing: -.05em; text-decoration: none; }
+    .logo span { color: #ff6037; }
+    main { padding-block: clamp(2rem, 7vw, 4rem); }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: 1.1; letter-spacing: -.045em; margin: 0 0 1.25rem; text-wrap: balance; }
+    h2 { font-size: clamp(1.35rem, 4vw, 1.8rem); line-height: 1.25; letter-spacing: -.025em; margin: 0 0 .8rem; }
+    p, ul, ol { margin: 0 0 1rem; }
+    ul, ol { padding-inline-start: 1.3em; }
+    li + li { margin-block-start: .6rem; }
+    .intro { max-width: 63ch; color: var(--muted); font-size: 1.125rem; }
+    section { border-top: 1px solid var(--line); margin-top: 2rem; padding-top: 1.8rem; }
+    .actions, footer { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.25rem; }
+    .actions { margin-top: 1.5rem; }
+    .button { display: inline-block; padding: .65rem 1rem; border-radius: .5rem; color: white; background: var(--blue); font-weight: 650; text-decoration: none; }
+    .button:hover { background: #123dba; }
+    footer { border-top: 1px solid var(--line); padding-block: 1.25rem 2rem; font-size: .875rem; }
+    a[href^="mailto:"] { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Перейти к содержимому</a>
+  <div class="wrap">
+    <header>
+      <a class="logo" href="../" aria-label="Пробки — на главную">пробки<span>.</span></a>
+      <nav aria-label="Навигация"><a href="../#pricing">Стоимость подключения</a></nav>
+    </header>
+    <main id="main">
+      <h1>Как автоматизировать дорожные сводки для радио</h1>
+      <p class="intro">«Пробки» готовят городскую дорожную сводку по расписанию и передают радиостанции готовый MP3. Время проезда поступает из 2ГИС, система проверяет текст, озвучивает его и сводит с джинглом и подложкой станции.</p>
+      <div class="actions">
+        <a class="button" href="../#demo">Послушать пример выпуска</a>
+        <a href="#connection">Что нужно для подключения</a>
+      </div>
+
+      <section aria-labelledby="integration">
+        <h2 id="integration">Как выпуск попадает в «Тракт»</h2>
+        <ol>
+          <li>Редакция выбирает эфирные слоты, ключевые улицы и направления, которые стоит проверять перед выпуском.</li>
+          <li>Система собирает данные заранее. Текст описывает найденные заторы, а голос и громкость согласуются с радиостанцией.</li>
+          <li>Готовый MP3 записывается в согласованную папку. «Тракт» берёт файл из этой папки по своему расписанию. Для другой эфирной программы сначала проверяем, умеет ли она забирать и обновлять файл таким способом.</li>
+        </ol>
+      </section>
+
+      <section aria-labelledby="reserve">
+        <h2 id="reserve">Что делать, если выпуск не готов</h2>
+        <p>О сбое приходит уведомление в Telegram. Для «Радио Маруся Ижевск» станция заранее кладёт в эфирную папку резервную запись. Свежий выпуск заменяет её только после успешной сборки. Если сборка сорвалась, в папке остаётся резервная запись.</p>
+        <p>У редактора остаётся возможность добавить дорожное сообщение через Telegram. Например, информация о сломанном светофоре попадёт в сводку, даже если по выбранным маршрутам ещё не видно затора.</p>
+      </section>
+
+      <section aria-labelledby="example">
+        <h2 id="example">Пример работы в Ижевске</h2>
+        <p>На «Радио Маруся Ижевск» система проверяет 21 маршрут и готовит четыре выпуска по будням. Утренние слоты выходят в <time>07:03</time> и <time>08:03</time>, вечерние — в <time>17:03</time> и <time>18:03</time> по Ижевску. «Тракт» получает файл через синхронизируемую папку.</p>
+        <p><a href="../#case">Посмотреть кейс «Радио Маруся Ижевск»</a></p>
+      </section>
+
+      <section aria-labelledby="connection">
+        <h2 id="connection">Что подготовить для запуска</h2>
+        <p>Понадобятся город, эфирные слоты, джингл, подложка и требования звукорежиссёра. Перед запуском проверяем произношение названий улиц, длительность выпуска и то, что эфирная система забирает свежий файл.</p>
+        <p>На <a href="../#pricing">странице стоимости</a> есть ориентиры по запуску и пример ежемесячного бюджета, включая расходы на внешние сервисы.</p>
+        <p>Для обсуждения подключения напишите на <a href="mailto:probkiauto@gmail.com">probkiauto@gmail.com</a> и укажите город и эфирную программу.</p>
+      </section>
+    </main>
+    <footer>
+      <a href="../">Главная страница</a>
+      <a href="../privacy.html">Обработка данных</a>
+    </footer>
+  </div>
+</body>
+</html>
