@@ -188,6 +188,57 @@ dialog{max-height:90dvh;width:min(540px,calc(100% - 30px));border:1px solid #b8c
 @media(max-width:680px){.pricing-heading,.setup-examples,.monthly-budget{grid-template-columns:minmax(0,1fr)}.pricing-heading{gap:28px}.pricing-intro{font-size:14px;margin-top:20px}.setup-amount{font-size:52px}.setup-quote>p:last-child{margin-top:14px}.setup-examples{gap:24px;padding:25px 0;margin-top:28px}.setup-examples h3,.setup-included h3{font-size:19px}.setup-examples p,.setup-included ul,.monthly-intro p{font-size:13px}.setup-included ul{grid-template-columns:minmax(0,1fr);gap:11px;margin-top:18px}.monthly-budget{margin-top:28px;padding-top:28px;gap:30px}.monthly-intro h3{font-size:28px}.monthly-intro .button{margin-top:5px}.budget-table{font-size:13px}.budget-table th{padding-right:12px}.budget-table small{font-size:10px}.budget-table tfoot td{font-size:24px}.pricing-note,.budget-method{font-size:11px}}
 @media(max-width:370px){.setup-amount{font-size:46px}.budget-table{font-size:12px}.budget-table tfoot td{font-size:22px}}
 
+#hostingNotice {
+  box-sizing: border-box;
+  width: min(34rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  padding: clamp(1.5rem, 5vw, 2.25rem);
+  border: 1px solid #b8c9df;
+  border-radius: .875rem;
+  background: #f2f5f8;
+  color: #182c40;
+  font: 1rem/1.65 system-ui, sans-serif;
+  box-shadow: 0 1.25rem 6rem #14326a33;
+  overflow-y: auto;
+}
+#hostingNotice:modal { overscroll-behavior: contain; }
+#hostingNotice::backdrop {
+  background: #142e4dcc;
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+#hostingNotice .hosting-notice-label {
+  margin: 0 0 .875rem;
+  color: #174fe6;
+  font-size: .875rem;
+  font-weight: 650;
+}
+#hostingNotice h2 {
+  margin: 0 0 1.25rem;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -.025em;
+}
+#hostingNoticeDescription p { margin: 0 0 1rem; }
+#hostingNoticeDescription p:last-child { margin-bottom: 0; color: #4e6275; }
+#hostingNotice form { margin: 1.5rem 0 0; }
+#hostingNotice button {
+  width: 100%;
+  min-height: 3rem;
+  padding: .75rem 1.25rem;
+  border: 0;
+  border-radius: .5rem;
+  background: #174fe6;
+  color: #fff;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+#hostingNotice button:hover { background: #123dba; }
+#hostingNotice button:focus-visible { outline: 3px solid #182c40; outline-offset: 4px; }
+
 </style>
 </head>
 <body>
@@ -276,5 +327,23 @@ document.querySelectorAll('[data-request]').forEach(button=>button.addEventListe
 document.getElementById('closeDialog').addEventListener('click',()=>dialog.close());
 dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
 </script>
+<dialog id="hostingNotice" aria-labelledby="hostingNoticeTitle" aria-describedby="hostingNoticeDescription">
+  <p class="hosting-notice-label">Важно для радиостанций</p>
+  <h2 id="hostingNoticeTitle">Сервис работает на российских серверах</h2>
+  <div id="hostingNoticeDescription">
+    <p>«Пробки» готовят и озвучивают дорожные сводки на серверах в России.</p>
+    <p>Этот сайт размещён отдельно на Netlify. Подготовка и доставка выпусков радиостанции работают независимо от доступности сайта.</p>
+  </div>
+  <form method="dialog">
+    <button type="submit" autofocus>Понятно</button>
+  </form>
+</dialog>
+<script>
+(() => {
+  const notice = document.getElementById('hostingNotice');
+  if (typeof notice.showModal === 'function') notice.showModal();
+})();
+</script>
+
 </body>
 </html>
